@@ -1,0 +1,1064 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday! 🎉</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+
+    /* ══════════════════════════════════════════
+       TOKENS  — edit to retheme
+    ══════════════════════════════════════════ */
+    :root {
+      --bg:       #0D0521;
+      --bg-mid:   #1A0A3C;
+      --purple:   #7B35C8;
+      --purple-l: #A855F7;
+      --lavender: #D4AAFF;
+      --pink:     #FF79C8;
+      --gold:     #FFD700;
+      --white:    #FFFFFF;
+      --off-white:#F0E6FF;
+      --border:   rgba(168,85,247,0.22);
+    }
+
+    /* ══════════════════════════════════════════
+       RESET & BASE
+    ══════════════════════════════════════════ */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html { font-size:16px; }
+    body {
+      background: var(--bg);
+      color: var(--white);
+      font-family: 'Lato', sans-serif;
+      overflow: hidden;   /* individual pages handle scroll */
+    }
+
+    /* ══════════════════════════════════════════
+       STARFIELD CANVAS
+    ══════════════════════════════════════════ */
+    #starCanvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* ══════════════════════════════════════════
+       FLOATING EMOJI
+    ══════════════════════════════════════════ */
+    .floater {
+      position: fixed;
+      z-index: 20;
+      pointer-events: none;
+      animation: floatUp linear infinite;
+      opacity: 0;
+    }
+    @keyframes floatUp {
+      0%   { transform:translateY(106vh) rotate(0deg);    opacity:0; }
+      8%   { opacity:.85; }
+      92%  { opacity:.85; }
+      100% { transform:translateY(-130px) rotate(360deg); opacity:0; }
+    }
+
+    /* ══════════════════════════════════════════
+       TOP NAV  (floating pill)
+    ══════════════════════════════════════════ */
+    .top-nav {
+      position: fixed;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding: 5px;
+      border-radius: 60px;
+      background: rgba(13,5,33,.8);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      box-shadow: 0 4px 28px rgba(0,0,0,.45);
+    }
+
+    .nav-btn {
+      padding: 8px 18px;
+      border-radius: 50px;
+      border: none;
+      background: transparent;
+      color: rgba(212,170,255,.5);
+      font-family: 'Lato', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .3s, color .3s, box-shadow .3s;
+      white-space: nowrap;
+    }
+    .nav-btn:hover {
+      color: var(--lavender);
+      background: rgba(168,85,247,.1);
+    }
+    .nav-btn.active {
+      background: var(--gold);
+      color: #180933;
+      box-shadow: 0 0 18px rgba(255,215,0,.45);
+    }
+    .nav-btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    /* ══════════════════════════════════════════
+       PAGE-DOT INDICATORS
+    ══════════════════════════════════════════ */
+    .page-dots {
+      position: fixed;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .dot {
+      width: 6px; height: 6px;
+      border-radius: 50px;
+      border: none;
+      background: rgba(212,170,255,.22);
+      cursor: pointer;
+      transition: width .4s ease, background .4s ease, box-shadow .4s ease;
+    }
+    .dot.active {
+      width: 22px;
+      background: var(--gold);
+      box-shadow: 0 0 10px rgba(255,215,0,.5);
+    }
+    .dot:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+    /* ══════════════════════════════════════════
+       PAGE TRANSITION SYSTEM
+    ══════════════════════════════════════════ */
+    .page {
+      position: fixed;
+      inset: 0;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      opacity: 0;
+      transform: scale(1.045);
+      pointer-events: none;
+      z-index: 5;
+      transition:
+        opacity  .52s cubic-bezier(.25,.46,.45,.94),
+        transform .52s cubic-bezier(.25,.46,.45,.94);
+    }
+    .page.active {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: all;
+      z-index: 10;
+    }
+    .page.leaving {
+      opacity: 0;
+      transform: scale(.955);
+      pointer-events: none;
+      z-index: 9;
+    }
+
+    /* ══════════════════════════════════════════
+       FANCY CTA BUTTONS
+    ══════════════════════════════════════════ */
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      padding: 18px 50px;
+      border-radius: 100px;
+      background: linear-gradient(135deg, var(--purple), var(--purple-l), var(--pink));
+      color: var(--white);
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 17px;
+      letter-spacing: .5px;
+      border: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      animation: btnPulse 2.8s ease-in-out infinite;
+      transition: transform .25s ease;
+    }
+
+    @keyframes btnPulse {
+      0%,100% { box-shadow: 0 8px 30px rgba(123,53,200,.42), 0 0 50px rgba(123,53,200,.1); }
+      50%      { box-shadow: 0 10px 44px rgba(123,53,200,.72), 0 0 80px rgba(168,85,247,.26); }
+    }
+
+    .btn-cta:not(.btn-outline):hover {
+      transform: translateY(-5px) scale(1.04);
+      animation-play-state: paused;
+      box-shadow: 0 20px 58px rgba(123,53,200,.82), 0 0 110px rgba(168,85,247,.4) !important;
+    }
+    .btn-cta:active { transform: scale(.97) !important; }
+    .btn-cta:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+
+    /* outline variant (back button) */
+    .btn-outline {
+      background: transparent;
+      border: 1.5px solid rgba(168,85,247,.45);
+      color: var(--lavender);
+      animation: btnOutlinePulse 2.8s ease-in-out infinite;
+    }
+    @keyframes btnOutlinePulse {
+      0%,100% { box-shadow: 0 6px 22px rgba(123,53,200,.18); border-color: rgba(168,85,247,.38); }
+      50%      { box-shadow: 0 8px 34px rgba(123,53,200,.38); border-color: rgba(168,85,247,.68); }
+    }
+    .btn-outline:hover {
+      background: rgba(168,85,247,.1);
+      border-color: var(--purple-l) !important;
+      color: var(--white);
+      transform: translateY(-5px) scale(1.04);
+      animation-play-state: paused;
+      box-shadow: 0 14px 42px rgba(123,53,200,.48) !important;
+    }
+
+    /* arrow icon */
+    .btn-icon {
+      font-style: normal;
+      font-size: 18px;
+      line-height: 1;
+      display: inline-block;
+      transition: transform .25s ease;
+    }
+    .btn-cta:hover .btn-icon { transform: translateX(5px); }
+    .btn-outline:hover .btn-icon { transform: translateX(-5px); }
+
+    /* ripple */
+    .ripple {
+      position: absolute;
+      width: 220px; height: 220px;
+      margin: -110px 0 0 -110px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.22);
+      animation: ripple .72s ease-out forwards;
+      pointer-events: none;
+    }
+    @keyframes ripple {
+      0%   { transform:scale(0); opacity:1; }
+      100% { transform:scale(3); opacity:0; }
+    }
+
+    /* CTA wrapper (center) */
+    .pg-cta-wrap {
+      display: flex;
+      justify-content: center;
+      padding: 52px 0 82px;
+    }
+
+    /* ══════════════════════════════════════════
+       INNER PAGE WRAPPER
+    ══════════════════════════════════════════ */
+    .pg-inner {
+      min-height: 100%;
+      padding: 90px 24px 0;
+      max-width: 1120px;
+      margin: 0 auto;
+    }
+
+    /* ══════════════════════════════════════════
+       SHARED TYPOGRAPHY
+    ══════════════════════════════════════════ */
+    .s-eyebrow {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--purple-l);
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .s-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(38px,7vw,68px);
+      text-align: center;
+      color: var(--white);
+      text-shadow: 0 0 30px rgba(168,85,247,.3);
+      margin-bottom: 50px;
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE 1 — WELCOME
+    ══════════════════════════════════════════ */
+    #page-welcome {
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 7px;
+      text-transform: uppercase;
+      color: var(--lavender);
+      margin-bottom: 16px;
+      opacity: 0;
+      animation: fadeUp .9s ease .5s forwards;
+    }
+
+    /* ✏️ Replace "Her Name" → the birthday girl's actual name */
+    .hero-name {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(68px,16vw,152px);
+      line-height: 1.05;
+      color: var(--white);
+      text-shadow:
+        0 0 40px rgba(168,85,247,.9),
+        0 0 100px rgba(168,85,247,.35);
+      margin-bottom: 8px;
+      opacity: 0;
+      animation: fadeUp .9s ease .8s forwards;
+    }
+
+    .hero-tagline {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(14px,2.8vw,19px);
+      color: var(--pink);
+      letter-spacing: 3px;
+      margin-bottom: 28px;
+      opacity: 0;
+      animation: fadeUp .9s ease 1.1s forwards;
+    }
+
+    .hero-wish {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(42px,9vw,92px);
+      color: var(--gold);
+      text-shadow: 0 0 44px rgba(255,215,0,.55);
+      margin-bottom: 46px;
+      opacity: 0;
+      animation: fadeUp .9s ease 1.4s forwards;
+    }
+
+    .hero-cta-wrap {
+      opacity: 0;
+      animation: fadeUp .9s ease 1.8s forwards;
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE 2 — GALLERY
+    ══════════════════════════════════════════ */
+    #page-gallery { background: var(--bg); }
+
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 18px;
+    }
+
+    .photo-frame {
+      position: relative;
+      border-radius: 14px;
+      overflow: hidden;
+      aspect-ratio: 4/5;
+      background: linear-gradient(135deg,#2A1050,var(--bg-mid));
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 26px rgba(0,0,0,.5);
+      transition: transform .3s ease, box-shadow .3s ease;
+    }
+    .photo-frame:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 24px 54px rgba(123,53,200,.58), 0 0 0 1px rgba(168,85,247,.45);
+    }
+
+    /* REAL PHOTO: add <img src="yourfile.jpg" alt="desc"> inside .photo-frame,
+       BEFORE the .ph-box div. The placeholder hides automatically. */
+    .photo-frame img {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+    }
+    .photo-frame img + .ph-box { display:none; }
+
+    .ph-box {
+      position: absolute; inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 11px;
+      padding: 20px;
+    }
+    .ph-icon {
+      width: 54px; height: 54px;
+      border-radius: 50%;
+      border: 2px dashed rgba(168,85,247,.38);
+      background: rgba(168,85,247,.07);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ph-icon svg { width:24px; height:24px; fill:var(--lavender); opacity:.5; }
+    .ph-label {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--lavender);
+      opacity: .6;
+    }
+    .ph-hint {
+      font-size: 9.5px;
+      color: rgba(212,170,255,.28);
+      text-align: center;
+      line-height: 1.75;
+    }
+
+    .frame-caption {
+      position: absolute;
+      bottom:0; left:0; right:0;
+      padding: 44px 12px 13px;
+      background: linear-gradient(to top,rgba(13,5,33,.93),transparent);
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 12px;
+      color: var(--off-white);
+      text-align: center;
+      opacity: 0;
+      transition: opacity .3s ease;
+      pointer-events: none;
+    }
+    .photo-frame:hover .frame-caption { opacity:1; }
+
+    /* ══════════════════════════════════════════
+       PAGE 3 — MESSAGE
+    ══════════════════════════════════════════ */
+    #page-message {
+      background: linear-gradient(160deg, var(--bg) 0%, var(--bg-mid) 50%, var(--bg) 100%);
+    }
+
+    .msg-card {
+      max-width: 700px;
+      margin: 0 auto;
+      padding: 58px 48px;
+      background: rgba(255,255,255,.035);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      backdrop-filter: blur(12px);
+      text-align: center;
+      box-shadow: 0 0 80px rgba(123,53,200,.16);
+    }
+    .msg-quote {
+      font-family: 'Great Vibes', cursive;
+      font-size: 68px;
+      color: var(--gold);
+      opacity: .3;
+      line-height: .4;
+      display: block;
+      margin-bottom: 28px;
+    }
+    .msg-body {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: clamp(15px,2.3vw,18.5px);
+      line-height: 1.95;
+      color: var(--off-white);
+      margin-bottom: 32px;
+    }
+    .msg-sig {
+      font-family: 'Great Vibes', cursive;
+      font-size: 32px;
+      color: var(--gold);
+    }
+
+    /* ══════════════════════════════════════════
+       PAGE 4 — WISHES
+    ══════════════════════════════════════════ */
+    #page-wishes { background: var(--bg); }
+
+    .wishes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(210px,1fr));
+      gap: 100px;
+    }
+    .wish-card {
+      background: linear-gradient(135deg,rgba(61,20,114,.4),rgba(22,8,45,.8));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 32px 20px;
+      text-align: center;
+      transition: transform .3s ease, border-color .3s ease;
+    }
+    .wish-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(168,85,247,.5);
+    }
+    .wish-emoji { font-size:36px; display:block; margin-bottom:13px; }
+    .wish-title {
+      font-family: 'Playfair Display', serif;
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--gold);
+      margin-bottom: 9px;
+    }
+    .wish-text { font-size:13px; font-weight:300; color:var(--lavender); line-height:1.75; }
+
+    .closing {
+      text-align: center;
+      padding: 58px 24px 0;
+    }
+    .closing-big {
+      font-family: 'Great Vibes', cursive;
+      font-size: clamp(36px,8vw,80px);
+      color: var(--gold);
+      text-shadow: 0 0 44px rgba(255,215,0,.4);
+      margin-bottom: 14px;
+    }
+    .closing-sub {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--lavender);
+      opacity: .5;
+      margin-bottom: 36px;
+    }
+    .closing-hearts {
+      display: block;
+      font-size: 20px;
+      letter-spacing: 10px;
+      opacity: .6;
+    }
+
+    /* ══════════════════════════════════════════
+       KEYFRAMES
+    ══════════════════════════════════════════ */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(26px); }
+      to   { opacity:1; transform:translateY(0);    }
+    }
+    @keyframes fadeIn {
+      from { opacity:0; } to { opacity:1; }
+    }
+
+    /* ══════════════════════════════════════════
+       RESPONSIVE
+    ══════════════════════════════════════════ */
+    @media (max-width:700px) {
+      .gallery-grid { grid-template-columns:repeat(2,1fr); gap:10px; }
+      .msg-card { padding:34px 20px; }
+      .nav-btn { padding:7px 11px; font-size:9px; letter-spacing:1.5px; }
+      .btn-cta { padding:15px 34px; font-size:15px; }
+    }
+    @media (max-width:360px) {
+      .nav-btn { padding:6px 9px; letter-spacing:1px; }
+    }
+
+    /* ══════════════════════════════════════════
+       REDUCED MOTION
+    ══════════════════════════════════════════ */
+    @media (prefers-reduced-motion:reduce) {
+      *,*::before,*::after {
+        animation-duration:.01ms !important;
+        transition-duration:.01ms !important;
+      }
+    }
+
+  </style>
+</head>
+<body>
+
+<!-- ─────────────────────────────────────
+     STARFIELD CANVAS
+───────────────────────────────────────── -->
+<canvas id="starCanvas"></canvas>
+
+
+<!-- ─────────────────────────────────────
+     TOP NAV
+───────────────────────────────────────── -->
+<nav class="top-nav" aria-label="Birthday pages">
+  <button class="nav-btn active" data-page="welcome"  aria-current="page">Home</button>
+  <button class="nav-btn"        data-page="gallery"               >Memories</button>
+  <button class="nav-btn"        data-page="message"               >Message</button>
+  <button class="nav-btn"        data-page="wishes"                >Wishes</button>
+</nav>
+
+
+<!-- ─────────────────────────────────────
+     PAGE DOT INDICATORS
+───────────────────────────────────────── -->
+<div class="page-dots" aria-hidden="true">
+  <button class="dot active" data-page="welcome"></button>
+  <button class="dot"        data-page="gallery"></button>
+  <button class="dot"        data-page="message"></button>
+  <button class="dot"        data-page="wishes"></button>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 1 ─ WELCOME
+═══════════════════════════════════════════════════ -->
+<div class="page active" id="page-welcome">
+
+  <p class="hero-eyebrow">A very special celebration for</p>
+
+  <!-- ✏️ Her name here (Great Vibes script) -->
+  <h1 class="hero-name">My Safsaf</h1>
+
+  <!-- ✏️ Your tagline -->
+  <p class="hero-tagline">Beautiful · Brilliant · Beloved</p>
+
+  <h2 class="hero-wish">Happy Birthday Love!</h2>
+
+  <div class="hero-cta-wrap">
+    <button class="btn-cta" data-goto="gallery">
+      View Your Memories <span class="btn-icon">✦</span>
+    </button>
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 2 ─ GALLERY / MEMORIES
+═══════════════════════════════════════════════════ -->
+<div class="page" id="page-gallery">
+  <div class="pg-inner">
+
+    <p class="s-eyebrow">Beautiful Memories</p>
+    <h2 class="s-title">Your precious Moments</h2>  <!-- ✏️ -->
+
+    <div class="gallery-grid">
+
+      <!-- ── Frame 1 ── -->
+      <div class="photo-frame">
+        <img src="safi.jpg" alt="Where it all began, a Queen's beginning">
+        <div class="ph-box">
+          <div class="ph-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 5h-2.59l-1.7-1.71A1 1 0 0 0 15 3H9a1 1 0 0 0-.71.29L6.59 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+          </div>
+          <p class="ph-label">safi</p>
+          <p class="ph-hint">Add &lt;img&gt; tag<br>before this div</p>
+        </div>
+        <div class="frame-caption">Where it all began, a Queen's beginning</div>
+      </div>
+
+      <!-- ── Frame 2 ── -->
+      <div class="photo-frame">
+        <img src="safi1.jpg" alt="My Queens First Milestone Achieved">
+        <div class="ph-box">
+          <div class="ph-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 5h-2.59l-1.7-1.71A1 1 0 0 0 15 3H9a1 1 0 0 0-.71.29L6.59 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+          </div>
+          <p class="ph-label">safi1</p>
+          <p class="ph-hint">Add &lt;img&gt; tag<br>before this div</p>
+        </div>
+        <div class="frame-caption">My Queens First Milestone Achieved</div>
+      </div>
+
+      <!-- ── Frame 3 ── -->
+      <div class="photo-frame">
+        <img src="safi2.jpeg" alt="A Queen's Journey Continues">
+        <div class="ph-box">
+          <div class="ph-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 5h-2.59l-1.7-1.71A1 1 0 0 0 15 3H9a1 1 0 0 0-.71.29L6.59 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+          </div>
+          <p class="ph-label">safi2</p>
+          <p class="ph-hint">Add &lt;img&gt; tag<br>before this div</p>
+        </div>
+        <div class="frame-caption">A Queen's Journey Continues</div>
+      </div>
+
+      <!-- ── Frame 4 ── -->
+      <div class="photo-frame">
+        <img src="safi3.jpeg" alt="The light of my life, my Queen">
+        <div class="ph-box">
+          <div class="ph-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 5h-2.59l-1.7-1.71A1 1 0 0 0 15 3H9a1 1 0 0 0-.71.29L6.59 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+          </div>
+          <p class="ph-label">safi3</p>
+          <p class="ph-hint">Add &lt;img&gt; tag<br>before this div</p>
+        </div>
+        <div class="frame-caption">The light of my life, my Queen</div>
+      </div>
+
+      <!-- ── Frame 5 ── -->
+      <div class="photo-frame">
+        <img src="safi4.jpeg" alt="A Queen's Smile, A King's Pride">
+        <div class="ph-box">
+          <div class="ph-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 5h-2.59l-1.7-1.71A1 1 0 0 0 15 3H9a1 1 0 0 0-.71.29L6.59 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+          </div>
+          <p class="ph-label">safi4</p>
+          <p class="ph-hint">Add &lt;img&gt; tag<br>before this div</p>
+        </div>
+        <div class="frame-caption">A Queen's Smile, A King's Pride</div>
+      </div>
+
+      <!-- ── Frame 6 ── -->
+      <div class="photo-frame">
+        <img src="safi5.jpeg" alt="A priceless memory of my Queen">
+        <div class="ph-box">
+          <div class="ph-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 5h-2.59l-1.7-1.71A1 1 0 0 0 15 3H9a1 1 0 0 0-.71.29L6.59 5H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2zm-8 12a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-8a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+          </div>
+          <p class="ph-label">safi5</p>
+          <p class="ph-hint">Add &lt;img&gt; tag<br>before this div</p>
+        </div>
+        <div class="frame-caption">A priceless memory of my Queen</div>
+      </div>
+
+    </div><!-- /.gallery-grid -->
+
+    <div class="pg-cta-wrap">
+      <button class="btn-cta" data-goto="message">
+        Read Your Message <span class="btn-icon">✦</span>
+      </button>
+    </div>
+
+  </div><!-- /.pg-inner -->
+</div><!-- /#page-gallery -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 3 ─ MESSAGE
+═══════════════════════════════════════════════════ -->
+<div class="page" id="page-message">
+  <div class="pg-inner">
+
+    <p class="s-eyebrow">A Special Message</p>
+    <h2 class="s-title">From my Heart to yours</h2>
+
+    <div class="msg-card">
+      <span class="msg-quote">"</span>
+      <p class="msg-body">
+        May this year find you softer with yourself,
+        slower to doubt, quicker to forgive,
+        and may I be the hands that hold that softness,
+        the reason peace feels easier to live in.<br><br>
+        May you be seen, truly seen,
+        in the way only someone who adores you can see,
+        every quiet mood, every quiet joy,
+        held gently, understood completely,
+        never once needing to explain yourself
+        to someone who already knows your heart.<br><br>
+        May you learn the shape of your own becoming,
+        and love it, even unfinished,
+        and may I get to watch you bloom,
+        close enough to call it home,
+        close enough to catch you
+        whenever the world feels too heavy to carry alone.<br><br>
+        May the world be kinder to you than it's been,
+        and where it isn't, may I make up the difference,
+        standing beside you through every season,
+        the soft ones and the stormy ones alike.<br><br>
+        May your laughter come easy and often,
+        may your dreams feel closer with each passing day,
+        and may you never doubt, not for one single moment,
+        how completely, how endlessly you are loved.
+        Happy birthday my love.<br><br>
+        Here's to another year of choosing you,
+        again and again, without hesitation,
+        today, tomorrow, and every day after.
+      </p>
+      <!-- ✏️ Your sign-off -->
+      <p class="msg-sig">With all my love</p>
+      <p>Musmus....</p>
+    </div>
+
+    <div class="pg-cta-wrap">
+      <button class="btn-cta" data-goto="wishes">
+        See Your Wishes <span class="btn-icon">✦</span>
+      </button>
+    </div>
+
+  </div><!-- /.pg-inner -->
+</div><!-- /#page-message -->
+
+
+<!-- ═══════════════════════════════════════════════════
+     PAGE 4 ─ WISHES
+     ✏️  Edit cards, closing name, and return button
+═══════════════════════════════════════════════════ -->
+<div class="page" id="page-wishes">
+  <div class="pg-inner">
+
+    <p class="s-eyebrow">Birthday Wishes</p>
+    <h2 class="s-title">Everything You Deserve</h2>
+
+    <!-- ✏️ Edit the four wish cards -->
+    <div class="wishes-grid">
+
+      <div class="wish-card">
+        <span class="wish-emoji">💜</span>
+        <h3 class="wish-title">Endless Joy</h3>
+        <p class="wish-text">May Allah make your heart overflow with happiness every single day of this beautiful year.</p>
+      </div>
+
+      <div class="wish-card">
+        <span class="wish-emoji">✨</span>
+        <h3 class="wish-title">New Adventures</h3>
+        <p class="wish-text">May this year bring you thrilling new experiences, places, and beautiful memories.</p>
+      </div>
+
+      <div class="wish-card">
+        <span class="wish-emoji">🌸</span>
+        <h3 class="wish-title">Good Health</h3>
+        <p class="wish-text">May your body, mind, and spirit remain strong, vibrant, and full of energy. Amin</p>
+      </div>
+
+      <div class="wish-card">
+        <span class="wish-emoji">💫</span>
+        <h3 class="wish-title">Endless Blessings</h3>
+        <p class="wish-text">May Allah immensely Bless all that you do</p>
+      </div>
+
+      <div class="wish-card">
+        <span class="wish-emoji">💕</span>
+        <h3 class="wish-title"></h3>
+        <p class="wish-text">May Allah immensely Bless all that you do</p>
+      </div>
+
+      <div class="wish-card">
+        <span class="wish-emoji">🌟</span>
+        <h3 class="wish-title">Great Success</h3>
+        <p class="wish-text">May every dream you dare to dream blossom into the most magnificent reality.</p>
+      </div>
+
+    </div><!-- /.wishes-grid -->
+
+    <!-- Closing message -->
+    <div class="closing">
+      <!-- ✏️ Replace "Her Name" -->
+      <h2 class="closing-big">Happy Birthday, My Safsaf!</h2>
+      <p class="closing-sub">Today &amp; always — with love</p>
+      <span class="closing-hearts">💜 💫 💜 💫 💜</span>
+    </div>
+
+    <div class="pg-cta-wrap">
+      <button class="btn-cta btn-outline" data-goto="welcome">
+        <span class="btn-icon">✦</span> Back to the Beginning
+      </button>
+    </div>
+
+  </div><!-- /.pg-inner -->
+</div><!-- /#page-wishes -->
+
+
+<!-- ─────────────────────────────────────
+     JAVASCRIPT
+───────────────────────────────────────── -->
+<script>
+
+// ══════════════════════════════════════════
+// STARFIELD
+// ══════════════════════════════════════════
+(function () {
+  const cv  = document.getElementById('starCanvas');
+  const ctx = cv.getContext('2d');
+
+  function resize() {
+    cv.width  = window.innerWidth;
+    cv.height = window.innerHeight;
+  }
+  resize();
+
+  let stars = [];
+  function build() {
+    stars = [];
+    const n = Math.floor((cv.width * cv.height) / 3500);
+    for (let i = 0; i < n; i++) {
+      stars.push({
+        x: Math.random() * cv.width,
+        y: Math.random() * cv.height,
+        r: Math.random() * 1.4 + 0.2,
+        p: Math.random() * Math.PI * 2,
+        s: Math.random() * 0.006 + 0.002,
+      });
+    }
+  }
+  build();
+  window.addEventListener('resize', () => { resize(); build(); });
+
+  function tick(ts) {
+    const t = ts / 1000;
+    ctx.clearRect(0, 0, cv.width, cv.height);
+    for (const st of stars) {
+      const a = 0.18 + 0.82 * (0.5 + 0.5 * Math.sin(t * st.s + st.p));
+      ctx.beginPath();
+      ctx.arc(st.x, st.y, st.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(212,170,255,${a.toFixed(3)})`;
+      ctx.fill();
+    }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+})();
+
+
+// ══════════════════════════════════════════
+// PAGE ROUTER
+// ══════════════════════════════════════════
+let current = 'welcome';
+
+function goTo(pageId) {
+  if (pageId === current) return;
+
+  const outEl = document.getElementById('page-' + current);
+  const inEl  = document.getElementById('page-' + pageId);
+
+  // Animate out current page
+  outEl.classList.add('leaving');
+  outEl.classList.remove('active');
+
+  // Activate incoming page (it starts from scale 1.045 via CSS default)
+  inEl.style.zIndex = '11';
+  inEl.classList.add('active');
+  inEl.scrollTop = 0;
+
+  // Cleanup after animation
+  setTimeout(() => {
+    outEl.classList.remove('leaving');
+    outEl.style.zIndex = '';
+    inEl.style.zIndex  = '';
+  }, 580);
+
+  current = pageId;
+
+  // Update nav and dots
+  document.querySelectorAll('.nav-btn').forEach(btn => {
+    const on = btn.dataset.page === pageId;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-current', on ? 'page' : 'false');
+  });
+  document.querySelectorAll('.dot').forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.page === pageId);
+  });
+}
+
+
+// ══════════════════════════════════════════
+// RIPPLE EFFECT
+// ══════════════════════════════════════════
+function addRipple(e) {
+  const btn  = e.currentTarget;
+  const rect = btn.getBoundingClientRect();
+  const rip  = document.createElement('span');
+  rip.className = 'ripple';
+  rip.style.left = (e.clientX - rect.left)  + 'px';
+  rip.style.top  = (e.clientY - rect.top)   + 'px';
+  btn.appendChild(rip);
+  setTimeout(() => rip.remove(), 740);
+}
+
+
+// ══════════════════════════════════════════
+// WIRE UP BUTTONS
+// ══════════════════════════════════════════
+
+// CTA buttons (data-goto)
+document.querySelectorAll('[data-goto]').forEach(btn => {
+  btn.addEventListener('click', function (e) {
+    addRipple(e);
+    const dest = this.dataset.goto;
+    setTimeout(() => goTo(dest), 70);
+  });
+});
+
+// Nav pill buttons
+document.querySelectorAll('.nav-btn').forEach(btn => {
+  btn.addEventListener('click', function () { goTo(this.dataset.page); });
+});
+
+// Dot indicators
+document.querySelectorAll('.dot').forEach(dot => {
+  dot.addEventListener('click', function () { goTo(this.dataset.page); });
+});
+
+
+// ══════════════════════════════════════════
+// CONFETTI BURST ON LOAD
+// ══════════════════════════════════════════
+(function () {
+  const COLS = ['#A855F7','#FFD700','#FF79C8','#D4AAFF','#FFFFFF','#7B35C8','#FF85E1'];
+
+  function burst() {
+    const cv = document.createElement('canvas');
+    cv.style.cssText =
+      'position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:9999;';
+    document.body.appendChild(cv);
+    const c = cv.getContext('2d');
+    cv.width  = window.innerWidth;
+    cv.height = window.innerHeight;
+
+    const ps = Array.from({ length: 130 }, () => ({
+      x:   Math.random() * cv.width,
+      y:   -20 - Math.random() * 190,
+      w:   4  + Math.random() * 9,
+      h:   3  + Math.random() * 5,
+      vx:  (Math.random() - 0.5) * 3.5,
+      vy:  1.8 + Math.random() * 3,
+      rot: Math.random() * Math.PI * 2,
+      rs:  (Math.random() - 0.5) * 0.14,
+      col: COLS[Math.floor(Math.random() * COLS.length)],
+      op:  1,
+    }));
+
+    (function draw() {
+      c.clearRect(0, 0, cv.width, cv.height);
+      let alive = false;
+      for (const p of ps) {
+        p.x += p.vx; p.y += p.vy; p.rot += p.rs;
+        if (p.y > cv.height - 60) p.op -= 0.024;
+        if (p.op > 0) {
+          alive = true;
+          c.save();
+          c.globalAlpha = Math.max(0, p.op);
+          c.translate(p.x, p.y);
+          c.rotate(p.rot);
+          c.fillStyle = p.col;
+          c.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          c.restore();
+        }
+      }
+      if (alive) requestAnimationFrame(draw);
+      else cv.remove();
+    })();
+  }
+
+  window.addEventListener('load', () => setTimeout(burst, 1100));
+})();
+
+
+// ══════════════════════════════════════════
+// FLOATING EMOJIS
+// ══════════════════════════════════════════
+(function () {
+  const pool = ['💜','✨','🌸','⭐','💫','🎂','🎉','💕','🌟','🦋'];
+
+  function spawn() {
+    const el = document.createElement('div');
+    el.className   = 'floater';
+    el.textContent = pool[Math.floor(Math.random() * pool.length)];
+    el.style.left  = (Math.random() * 97) + 'vw';
+    el.style.fontSize = (12 + Math.random() * 15) + 'px';
+    const dur = 9 + Math.random() * 11;
+    el.style.animationDuration = dur + 's';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), dur * 1000 + 400);
+  }
+
+  setInterval(spawn, 1700);
+  spawn(); spawn(); spawn();
+})();
+
+</script>
+</body>
+</html>
